@@ -17,6 +17,18 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    // Construtor padrão vazio
+    public Usuario() {
+    }
+
+    public Usuario(String nome, String email, String senha, Role role) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.role = role;
+    }
+
+    // Getters e Setters
     public Integer getId() {
         return id;
     }
