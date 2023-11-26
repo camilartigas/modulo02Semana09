@@ -1,39 +1,52 @@
 package com.example.veiculosEMultas.service;
 
+import com.example.veiculosEMultas.exception.RegistroJaExistenteException;
+import com.example.veiculosEMultas.exception.RegistroNaoEncontradoException;
 import com.example.veiculosEMultas.model.Multa;
 import com.example.veiculosEMultas.model.Veiculo;
+import com.example.veiculosEMultas.repository.MultaRepository;
 import com.example.veiculosEMultas.repository.VeiculoRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+
 
 @Service
 public class VeiculoService {
-        private final VeiculoRepository veiculoRepository;
 
-        public VeiculoService(VeiculoRepository veiculoRepository) {
-            this.veiculoRepository = veiculoRepository;
-        }
+    @Autowired
+    private VeiculoRepository veiculoRepo;
 
-        public List<Veiculo> getAllVeiculos() {
-            return veiculoRepository.findAll();
-        }
+    @Autowired
+    private MultaRepository multaRepo;
 
-        public Veiculo getVeiculoByPlaca(String placa) {
-            return veiculoRepository.findById(placa)
-                    .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
-        }
+    @Autowired
+    private ModelMapper mapper;
 
-        public Veiculo cadastrarVeiculo(Veiculo veiculo) {
-            return veiculoRepository.save(veiculo);
-        }
 
-        public Multa cadastrarMulta(String placa, Multa multa) {
-            Veiculo veiculo = getVeiculoByPlaca(placa);
-            multa.setVeiculo(veiculo);
-            veiculo.getMultas().add(multa);
-            veiculoRepository.save(veiculo);
-            return multa;
-        }
+    public List<Veiculo> consultar() {
+        return veiculoRepo.findAll();
+    }
+
+    public Veiculo consultar(String placa) {
+        return veiculoRepo.findById(placa)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Veiculo", placa));
+    }
+
+    public Veiculo salvar(Veiculo veiculo) {
+        boolean existe = veiculoRepo.existsById(veiculo.getPlaca());
+        if (existe)
+            throw new RegistroJaExistenteException("Veiculo", veiculo.getPlaca());
+        veiculo = veiculoRepo.save(veiculo);
+        return veiculo;
+    }
+
+    public Multa cadastrarMulta(String placa, Multa multa) {
+        var veiculo = this.consultar(placa);
+        multa.setVeiculo(veiculo);
+        multa = multaRepo.save(multa);
+        return multa;
+    }
 
 }

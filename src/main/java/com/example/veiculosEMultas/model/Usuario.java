@@ -1,25 +1,34 @@
 package com.example.veiculosEMultas.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 
+@Data
+@NoArgsConstructor
 @Entity
-@Table(name = "Usuarios")
-public class Usuario {
+@Table(name = "USUARIOS")
+public class Usuario implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String nome;
+
     private String email;
+
     private String senha;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // Construtor padrão vazio
-    public Usuario() {
-    }
 
     public Usuario(String nome, String email, String senha, Role role) {
         this.nome = nome;
@@ -28,44 +37,39 @@ public class Usuario {
         this.role = role;
     }
 
-    // Getters e Setters
-    public Integer getId() {
-        return id;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));  // it uses de preffix 'ROLE_' to validate at controller methods
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
-    public String getNome() {
-        return nome;
+    @Override
+    public String getPassword() {
+        return this.senha;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public String getEmail() {
-        return email;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public String getSenha() {
-        return senha;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 }

@@ -1,35 +1,48 @@
 package com.example.veiculosEMultas.service;
 
-import com.example.veiculosEMultas.dto.UsuarioRequest;
-import com.example.veiculosEMultas.model.Role;
+import com.example.veiculosEMultas.exception.RegistroJaExistenteException;
 import com.example.veiculosEMultas.model.Usuario;
 import com.example.veiculosEMultas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+
+import java.util.*;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
-    private final UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioRepository repo;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        this.usuarioRepository = usuarioRepository;
+
+    public Usuario inserir(Usuario usuario) {
+        if (repo.existsByEmail(usuario.getEmail()))
+            throw new RegistroJaExistenteException("Usuario", usuario.getEmail());
+        String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
+        usuario.setSenha(senhaCriptografada);
+        return repo.save(usuario);
     }
 
-    public List<Usuario> getAllUsuarios() {
-        return usuarioRepository.findAll();
+    public List<Usuario> consultar() {
+        return repo.findAll();
     }
 
-    public Usuario criarNovoUsuario(UsuarioRequest usuarioRequest) {
-        Usuario novoUsuario = new Usuario();
-        novoUsuario.setNome(usuarioRequest.getNome());
-        novoUsuario.setEmail(usuarioRequest.getEmail());
-        novoUsuario.setSenha(usuarioRequest.getSenha());
+    @Override
+    public UserDetails loadUserByUsername(String email)
+            throws UsernameNotFoundException {
+        Optional<Usuario> usuarioOpt = repo.findByEmail(email);
+        if (usuarioOpt.isEmpty())
+            throw new UsernameNotFoundException("User not found");
+        return usuarioOpt.get();
 
-        Role role = Role.valueOf(usuarioRequest.getRole().toUpperCase());
-        novoUsuario.setRole(role);
-
-        return usuarioRepository.save(novoUsuario);
     }
 }

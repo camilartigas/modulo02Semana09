@@ -4,9 +4,20 @@ import jakarta.persistence.*;
 
 import java.util.List;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name= "veiculos")
+@Table(name = "VEICULOS")
 public class Veiculo {
+
     @Id
     private String placa;
 
@@ -14,57 +25,24 @@ public class Veiculo {
     private TipoVeiculo tipo;
 
     private String nome;
+
     private Integer anoFabricacao;
+
     private String cor;
 
-    @OneToMany(mappedBy = "veiculo", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, mappedBy = "veiculo")
     private List<Multa> multas;
 
-    public String getPlaca() {
-        return placa;
-    }
-
-    public void setPlaca(String placa) {
+    public Veiculo(String placa, TipoVeiculo tipo, String nome, Integer anoFabricacao, String cor) {
         this.placa = placa;
-    }
-
-    public TipoVeiculo getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoVeiculo tipo) {
         this.tipo = tipo;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public Integer getAnoFabricacao() {
-        return anoFabricacao;
-    }
-
-    public void setAnoFabricacao(Integer anoFabricacao) {
         this.anoFabricacao = anoFabricacao;
-    }
-
-    public String getCor() {
-        return cor;
-    }
-
-    public void setCor(String cor) {
         this.cor = cor;
     }
 
-    public List<Multa> getMultas() {
-        return multas;
+    public boolean temMultas() {
+        return this.multas != null && !this.multas.isEmpty();
     }
 
-    public void setMultas(List<Multa> multas) {
-        this.multas = multas;
-    }
 }

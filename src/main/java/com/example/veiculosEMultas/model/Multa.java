@@ -1,59 +1,37 @@
 package com.example.veiculosEMultas.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "Multas")
+@Table(name = "MULTAS")
 public class Multa {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String local;
+
     private String motivo;
+
     private Float valor;
 
     @ManyToOne
-    @JoinColumn(name = "placa_veiculo")
+    @JoinColumn(name = "PLACA", referencedColumnName = "PLACA")
     private Veiculo veiculo;
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getLocal() {
-        return local;
-    }
-
-    public void setLocal(String local) {
-        this.local = local;
-    }
-
-    public String getMotivo() {
-        return motivo;
-    }
-
-    public void setMotivo(String motivo) {
+    public Multa(Veiculo veiculo, String motivo, String local, Float valor) {
+        this.veiculo = veiculo;
         this.motivo = motivo;
-    }
-
-    public Float getValor() {
-        return valor;
-    }
-
-    public void setValor(Float valor) {
+        this.local = local;
         this.valor = valor;
     }
 
-    public Veiculo getVeiculo() {
-        return veiculo;
-    }
-
-    public void setVeiculo(Veiculo veiculo) {
-        this.veiculo = veiculo;
-    }
 }
